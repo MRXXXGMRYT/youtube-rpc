@@ -177,7 +177,6 @@ app.listen(HTTP_PORT, () => {
 
 const client = new Client({
     intents: [],
-    makeCache: { MessageManager: () => null },
 });
 
 let presenceInterval = null;
