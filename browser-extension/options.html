@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Rich Presence — Settings</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+        h1 { font-size: 1.25rem; margin-bottom: 1.5rem; }
+        label { display: block; margin: 1rem 0 0.25rem; font-weight: 600; font-size: 0.9rem; }
+        input[type="text"], input[type="url"], select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box; }
+        .row { display: flex; gap: 1rem; margin: 1rem 0; }
+        .row > div { flex: 1; }
+        .hint { font-size: 0.8rem; color: #666; margin-top: 0.25rem; }
+        button.save { margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: #5865f2; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        button.save:hover { background: #4752c4; }
+        .status { margin-top: 1rem; font-size: 0.85rem; min-height: 1.2rem; }
+        .ok { color: #3ba55d; } .err { color: #ed4245; }
+    </style>
+</head>
+<body>
+    <h1>YouTube Rich Presence</h1>
+
+    <label>Render webhook URL</label>
+    <input type="url" id="webhookUrl" placeholder="https://your-app.onrender.com">
+    <div class="hint">Your Render app URL. The extension POSTs playback data here.</div>
+
+    <label>Service</label>
+    <select id="service">
+        <option value="youtube">YouTube only</option>
+        <option value="youtubemusic">YouTube Music only</option>
+        <option value="both">Both</option>
+    </select>
+
+    <label>Activity type</label>
+    <select id="type">
+        <option value="PLAYING">Playing</option>
+        <option value="LISTENING">Listening to</option>
+        <option value="STREAMING">Streaming</option>
+        <option value="WATCHING">Watching</option>
+    </select>
+
+    <label>Discord status</label>
+    <select id="status">
+        <option value="online">Online</option>
+        <option value="idle">Idle</option>
+        <option value="dnd">Do Not Disturb</option>
+        <option value="invisible">Invisible</option>
+    </select>
+
+    <div class="row">
+        <div>
+            <label>Activity name (bold)</label>
+            <input type="text" id="name" value="YouTube">
+        </div>
+        <div>
+            <label>Details</label>
+            <input type="text" id="details" value="Watching videos">
+        </div>
+    </div>
+
+    <div class="row">
+        <div>
+            <label>State / author</label>
+            <input type="text" id="state" value="YouTube">
+        </div>
+        <div>
+            <label>Stream URL (for STREAMING type)</label>
+            <input type="url" id="url" value="https://youtube.com">
+        </div>
+    </div>
+
+    <label>Channel URL (for Channel button)</label>
+    <input type="url" id="channelUrl" value="https://youtube.com">
+    <div class="hint">Leave empty to hide channel button.</div>
+
+    <div class="row">
+        <div>
+            <label><input type="checkbox" id="addByBeforeAuthor"> Add "by" before author</label>
+        </div>
+        <div>
+            <label><input type="checkbox" id="useThumbnail"> Use video thumbnail</label>
+        </div>
+        <div>
+            <label><input type="checkbox" id="showVideoButton"> Show "Watch on YouTube" button</label>
+        </div>
+        <div>
+            <label><input type="checkbox" id="showChannelButton"> Show Channel button</label>
+        </div>
+    </div>
+
+    <label>Exclude keywords (comma-separated)</label>
+    <input type="text" id="excludeKeywords" placeholder="shorts, live">
+    <div class="hint">Presence hidden if title/channel contains any of these.</div>
+
+    <label>Include keywords (comma-separated)</label>
+    <input type="text" id="includeKeywords" placeholder="music, lofi">
+    <div class="hint">Presence shown only if title/channel contains any of these.</div>
+
+    <button class="save" id="save">Save settings</button>
+    <div class="status" id="status"></div>
+
+    <script>
+        const els = {};
+        ["webhookUrl","service","type","status","name","details","state","url","channelUrl",
+         "addByBeforeAuthor","useThumbnail","showVideoButton","showChannelButton",
+         "excludeKeywords","includeKeywords"].forEach(id => {
+            els[id] = document.getElementById(id);
+        });
+
+        const status = document.getElementById("status");
+
+        chrome.storage.sync.get(null, (items) => {
+            Object.keys(items).forEach(k => {
+                if (els[k]) {
+                    if (els[k].type === "checkbox") els[k].checked = items[k] !== false;
+                    else els[k].value = items[k] || "";
+                }
+            });
+        });
+
+        document.getElementById("save").addEventListener("click", () => {
+            const data = {};
+            Object.keys(els).forEach(k => {
+                if (els[k].type === "checkbox") data[k] = els[k].checked;
+                else data[k] = els[k].value;
+            });
+            chrome.storage.sync.set(data, () => {
+                status.textContent = "Saved.";
+                status.className = "status ok";
+                setTimeout(() => { status.textContent = ""; }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>

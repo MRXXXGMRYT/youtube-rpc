@@ -1,0 +1,36 @@
+# YouTube Rich Presence — Browser Extension
+#
+# Reads YouTube / YouTube Music playback from the DOM and POSTs it to the
+# Render self-bot webhook. Settings live here (extension), not in .env.
+
+{
+  "manifest_version": 3,
+  "name": "YouTube Rich Presence",
+  "version": "1.0.0",
+  "description": "Sends YouTube playback to the Discord self-bot webhook.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://music.youtube.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/watch*",
+        "https://www.youtube.com/*",
+        "https://music.youtube.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

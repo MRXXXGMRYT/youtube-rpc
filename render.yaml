@@ -1,0 +1,15 @@
+name: youtube-rpc
+description: YouTube / YouTube Music Rich Presence Discord self-bot
+
+services:
+  - type: web
+    name: youtube-rpc
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: PORT
+        value: 10000
